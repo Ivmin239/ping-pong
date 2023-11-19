@@ -1,128 +1,118 @@
-import numpy as np
-#---крестики-нолики---
-#доработки:
-#1) сделать чтобы игрок выбирал символ своего хода
-#2) заменить алгоритм хода компьютера с рандома на более умный
-#
-#
-#функция отображения доски
-def boardvis(board):
-  print("  {}  | {} |  {}  ".format(board[0], board[1], board[2]))
-  print("  ------------  ")
-  print("  {}  | {} |  {}  ".format(board[3], board[4], board[5]))
-  print("  ------------  ")
-  print("  {}  | {} |  {}  \n".format(board[6], board[7], board[8]))
-  
-#функция для выбора символа игрока - ДЗ - нет входных параметров, но 2 вызодных
-#функция для выбора кто ходит первым (рандом)
-def order():
-  flag = 1
-  pos = np.random.randint(1, 10, dtype=int)
-  if (pos%2==1):
-    flag = 0
-  return 'X', 'O', flag
-#функция для предложения сыграть еще
-def again():
+import turtle
+
+# Создание экрана
+screen = turtle.Screen()
+screen.title('Pong game')
+screen.setup(width=1000, height=600)
+
+#Создание левой платформы
+left_paddle = turtle.Turtle()
+left_paddle.speed(0)
+left_paddle.shape('square')
+left_paddle.color('blue')
+left_paddle.shapesize(stretch_wid=6, stretch_len=2)
+left_paddle.penup()
+left_paddle.goto(-400, 0)
+
+#Создание правой платформы
+right_paddle = turtle.Turtle()
+right_paddle.speed(0)
+right_paddle.shape('square')
+right_paddle.color("red")
+right_paddle.shapesize(stretch_wid = 6, stretch_len = 2)
+right_paddle.penup()
+right_paddle.goto(400, 0)
+
+#создание мячика
+ball = turtle.Turtle()
+ball.speed(0)
+ball.shape("circle")
+ball.color("green")
+ball.shapesize(stretch_wid = 1, stretch_len = 1)
+ball.penup()
+ball.goto(0,0)
+ball.dx = 2
+ball.dy = -2
+
+#создание счета
+player1 = 0
+player2 = 0
+score = turtle.Turtle()
+score.speed(0)
+score.penup()
+score.hideturtle()
+score.goto(0, 400)
+score.write(' {} : {} '.format(player1, player2), align = 'center', font = ('Courier', 20, 'bold'))
+
+#функции для перемешения панелей
+def left_up():
+  y = left_paddle.ycor()
+  y += 15
+  left_paddle.sety(y)
+
+def left_down():
+  y = left_paddle.ycor()
+  y -= 15
+  left_paddle.sety(y)
+
+def right_up():
+  y = right_paddle.ycor()
+  y += 15
+  right_paddle.sety(y)
+
+def right_down():
+  y = right_paddle.ycor()
+  y -= 15
+  right_paddle.sety(y)
+
+def game_start():
+  return True
+
+#связать нажатие кнопки и действие на экране
+screen.listen()
+screen.onkeypress(left_up, 'w')
+screen.onkeypress(left_down, 's')
+screen.onkeypress(right_up, 'Up')
+screen.onkeypress(right_down, 'Down')
+screen.onkeypress(game_start, 'q')
+
+#основной цикл игры
+if game_start():
   while True:
-    try:
-      answer = int(input("Начать заново? (1 - да, 0 - нет)"))
-      return answer
-    except:
-      print('Вы ошиблись в вводе')
+    screen.update()
+    ball.setx(ball.xcor() + ball.dx)
+    ball.sety(ball.ycor() + ball.dy)
 
-#функция проверяющая занята клетка или нет
-def checkfree(board, pos):
-  if (board[int(pos)-1] != 'X')&(board[int(pos)-1] != 'O'):
-    return True
-  else:
-    return False
-  
-#функция, в которой игрок делает ход
-#if num in ['1','2','0','4','5','X','7','8','9']:
-#num - подходит - заменить на соотв символ
-def Actplayer(board, player_sym):
-  nump = '!'
-  #debug
-  #print('I am here in function actplayer')
-  #print(nump in "123456789")
-  while not (nump in "123456789"):
-    nump = input("Выберите номер клетки от 1 до 9 из не занятых: ")
-    while not (checkfree(board, nump)):
-      nump = input("Клетка занята! \nВыберите номер клетки от 1 до 9 из не занятых: ")
-  board[int(nump)-1] = player_sym
-  
-  
-#функция проверяющая выграл ли игрок, компьютер или ничья (поле заполнено)
-def result(b):
-  if ((b[0] == "X")&(b[1] == "X")&(b[2] == "X")) or                       ((b[3] == "X")&(b[4] == "X")&(b[5] == "X")) or                       ((b[6] == "X")&(b[7] == "X")&(b[8] == "X")) or                       ((b[0] == "X")&(b[3] == "X")&(b[6] == "X")) or                       ((b[1] == "X")&(b[4] == "X")&(b[7] == "X")) or                       ((b[2] == "X")&(b[5] == "X")&(b[8] == "X")) or                       ((b[0] == "X")&(b[4] == "X")&(b[8] == "X")) or                       ((b[2] == "X")&(b[4] == "X")&(b[6] == "X")):
-    return 1
-  elif ((b[0] == "O")&(b[1] == "O")&(b[2] == "O")) or                       ((b[3] == "O")&(b[4] == "O")&(b[5] == "O")) or                       ((b[6] == "O")&(b[7] == "O")&(b[8] == "O")) or                       ((b[0] == "O")&(b[3] == "O")&(b[6] == "O")) or                       ((b[1] == "O")&(b[4] == "O")&(b[7] == "O")) or                       ((b[2] == "O")&(b[5] == "O")&(b[8] == "O")) or                       ((b[0] == "O")&(b[4] == "O")&(b[8] == "O")) or                       ((b[2] == "O")&(b[4] == "O")&(b[6] == "O")):
-      return 0
-  elif ''.join(b).isalpha():
-    return 2
-  else:
-    return -1
-#функция хода компьютера (1 версия - просто рандомный ход на пустое поле)
-def Actcomp(board, comp_sym):
-  numc = np.random.randint(1, 9, dtype=int)
-  #debug
-  #print("ход компьютера: ", numc, ' is free?: ', checkfree(board, numc))
-  while not (checkfree(board, numc)):
-    numc = np.random.randint(1, 9, dtype=int)
-    #print("ход компьютера: ", numc, ' is free?: ', checkfree(board, numc))
-  print("Ход компьютера: ", numc)
-  board[numc-1] = comp_sym
+    #столкновение с верхней границей
+    if (ball.ycor() > 290):
+      #ball.sety(290)
+      #ball.dy *= -1
+      ball.dy = ball.dy * (-1)
 
-'''
-def Actcomp(board, comp_sym):
-  if ((b[0] == "X")&(b[1] == "X")):
-    if (board[2] != "X" &  board[2] != "O ")
-    board[2] = comp_sym
-  if ((b[0] == "X")&(b[1] == "X")):
-    board[2] = comp_sym
-  while not (checkfree(board, numc)):
-    numc = np.random.randint(0, 8, dtype=int)
-  board[numc] = comp_sym
-'''
-def resultcheck(board):
-  match result(board):
-    case 1:
-      print("Поздравляем! Вы выиграли!")
-    case 0:
-      print("К сожалению, Вы проиграли!")
-    case 2:
-      print("Ничья! Советуем сыграть снова.")
-#основная программа
+    #столкновение с нижней границей
+    if (ball.ycor() < -290):
+      #ball.sety(-290)
+      #ball.dy *= -1
+      ball.dy = ball.dy * (-1)
 
-print("Сыграть в крестики-нолики?")
-while True:
-  #задать начальные параметры символов игры
-  board = ['1','2','3','4','5','6','7','8','9']
-  player_sym, comp_sym, turn = order()
-  print("Символ игрока - ", player_sym)
-  if (turn == 1):
-    print("Первым ходитите Вы")  
-  else:
-    print("Первым ходит Компьютер")
-  boardvis(board)
-  while True:
-    if (turn == 1):
-      Actplayer(board, player_sym)
-      boardvis(board)
-      if (result(board)==-1):
-        turn = 0
+    #пропуск мяча - столкновение с левой или правой стенкой
+    if (ball.xcor() > 450) or (ball.xcor() < -450):
+      if (ball.xcor() > 450):
+        player2 += 1 
       else:
-        resultcheck(board)
-        break
-    else:
-      Actcomp(board, comp_sym)
-      boardvis(board)
-      #debug
-      #print("\n", result(board), type(result(board)), "\n")
-      if result(board) == -1:
-        turn = 1
-      else:
-        resultcheck(board)
-        break
-  if(again() == 0):
-    break
+        player1 += 1
+      ball.goto(0, 0)
+      ball.dx *= -1
+      ball.dy *= -1
+
+    #столкновение с левой платформой
+    if (ball.xcor() < -350) and \
+       (ball.ycor() < left_paddle.ycor() + 50) and \
+       (ball.ycor() > left_paddle.ycor() - 50):
+      ball.dx *= -1
+
+    #столкновение с правой платформой
+    if (ball.xcor() > 350) and \
+     (ball.ycor() < right_paddle.ycor() + 50) and \
+     (ball.ycor() > right_paddle.ycor() - 50):
+     ball.dx *= -1
